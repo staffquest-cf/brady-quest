@@ -11,7 +11,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Brady's Quest">
 <link rel="icon" type="image/png" href="icon.png">
-<link rel="apple-touch-icon" href="icon.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Brady's Quest · il gioco di KEIK">
 <meta property="og:description" content="Aiuta Brady a consegnare il caffè al gate K51 prima che chiuda l'imbarco!">
@@ -85,6 +86,13 @@ h2.sec{font-size:16px;margin:8px 0 0;font-weight:700}
 #rotate,.exitfs{display:none}
 #area.fs{position:fixed;inset:0;z-index:50;background:#000;align-items:center;justify-content:center;gap:0;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
 #area.fs .stage{border:0;border-radius:0}
+html.bq-fs,html.bq-fs body{overflow:hidden;height:100%;overscroll-behavior:none;touch-action:none}
+#area.fs{height:100dvh}
+.ios-tip{font-size:12.5px;max-width:40ch}
+.menu-back{display:none;font-size:12.5px;color:var(--sign);text-decoration:underline}
+#area.fs .menu-back{display:inline-block}
+#area.fs:has(#screen:not([hidden])) .pad,#area.fs:has(#screen:not([hidden])) .exitfs{display:none!important}
+@media (max-height:520px){#area.fs .screen h2{font-size:19px}#area.fs .screen p{font-size:12.5px;max-width:60ch}#area.fs .screen{gap:6px;padding:10px}}
 #area.fs .pad{position:absolute;left:0;right:0;bottom:calc(8px + env(safe-area-inset-bottom,0px));padding-inline:calc(12px + env(safe-area-inset-left,0px)) calc(12px + env(safe-area-inset-right,0px));pointer-events:none}
 #area.fs .pad .key{pointer-events:auto;opacity:.6;background:rgba(28,44,76,.55)}
 #area.fs .exitfs{display:flex;position:absolute;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);width:30px;height:30px;align-items:center;justify-content:center;border-radius:6px;border:2px solid #ffc21a;background:rgba(16,24,38,.7);color:#ffc21a;font:inherit;font-size:14px;cursor:pointer;z-index:6}
@@ -118,8 +126,8 @@ h2.sec{font-size:16px;margin:8px 0 0;font-weight:700}
       <h2 id="scr-title">Le avventure di Brady</h2>
       <p id="scr-text">Accompagna Brady nelle sue avventure intorno al mondo, viaggiando col gusto e divertendoti. Abbiamo creato questo gioco per farti compagnia nei momenti di attesa e aiutarti a rilassarti quando ne hai bisogno. Il gioco è in continuo sviluppo: aggiungeremo sempre nuove tappe e sorprese.</p>
       <p class="stats" id="scr-stats" hidden></p>
-      <div class="btns"><button class="btn" id="btn-play">Gioca</button><button class="btn alt" id="btn-retry" hidden>Puoi fare di più? Ripeti il livello</button><button class="btn alt only-touch" id="btn-fs">Schermo intero</button></div>
-      <p class="only-touch tip">Gira il telefono e gioca a schermo intero.</p>
+      <div class="btns"><button class="btn" id="btn-play">Gioca</button><button class="btn alt" id="btn-retry" hidden>Puoi fare di più? Ripeti il livello</button><button class="btn alt only-touch" id="btn-fs" hidden>Schermo intero</button></div>
+      <p class="only-touch tip">Gira il telefono in orizzontale: il gioco si apre a tutto schermo.</p><a class="menu-back" id="menu-back" href="https://www.keik.it/pages/menu-all-day-kitchen">&larr; Torna al menu KEIK</a><p class="tip ios-tip" id="ios-tip" hidden>Su iPhone per il vero tutto schermo: tocca <b>Condividi</b> e poi <b>Aggiungi alla schermata Home</b>, poi apri Brady's Quest dall'icona.</p>
     </div>
   </div>
 
@@ -811,16 +819,22 @@ function bind(id,down,up){
 }
 bind('k-left',()=>K.l=true,()=>K.l=false);bind('k-right',()=>K.r=true,()=>K.r=false);
 bind('k-down',()=>{K.d=true;act=true;},()=>K.d=false);bind('k-jump',()=>{jumpDown();K.j=true;},jumpUp);
-function enterFS(){const ar=$('area');ar.classList.add('fs');
+function enterFS(){const ar=$('area');ar.classList.add('fs');document.documentElement.classList.add('bq-fs');window.scrollTo(0,0);
   try{const r=ar.requestFullscreen?ar.requestFullscreen({navigationUI:'hide'}):(ar.webkitRequestFullscreen?ar.webkitRequestFullscreen():null);
     if(r&&r.then)r.then(()=>{try{if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(()=>{});}catch(e){}resize();}).catch(()=>{});}catch(e){}
   setTimeout(resize,60);setTimeout(resize,400);}
-function exitFS(){const ar=$('area');ar.classList.remove('fs');try{if(document.fullscreenElement)document.exitFullscreen();else if(document.webkitFullscreenElement)document.webkitExitFullscreen();}catch(e){}setTimeout(resize,60);}
-document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&$('area').classList.contains('fs')){$('area').classList.remove('fs');resize();}});
+function exitFS(){const ar=$('area');ar.classList.remove('fs');document.documentElement.classList.remove('bq-fs');try{if(document.fullscreenElement)document.exitFullscreen();else if(document.webkitFullscreenElement)document.webkitExitFullscreen();}catch(e){}setTimeout(resize,60);}
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&$('area').classList.contains('fs')&&!STANDALONE){$('area').classList.remove('fs');document.documentElement.classList.remove('bq-fs');resize();}});
 $('btn-fs').addEventListener('click',()=>{enterFS();$('btn-play').click();});
 $('btn-exit').addEventListener('click',exitFS);
 $('btn-retry').addEventListener('click',()=>{if(state!=='win')return;mapComplete(0);M.auto=0;M.cur=0;$('btn-retry').hidden=true;startLevel();});
+const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const STANDALONE=!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches));
+const TOUCH=!!(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart' in window);
+if(IOS&&!STANDALONE)$('ios-tip').hidden=false;
+if(TOUCH){$('area').classList.add('fs');document.documentElement.classList.add('bq-fs');setTimeout(resize,60);setTimeout(resize,400);}
 $('btn-play').addEventListener('click',()=>{
+  if(TOUCH&&!$('area').classList.contains('fs'))enterFS();
   if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)();}catch(e){ac=null;}}
   if(state==='over'){startLevel();return;}
   if(state==='win')mapComplete(0);
