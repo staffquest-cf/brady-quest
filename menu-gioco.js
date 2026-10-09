@@ -26,19 +26,19 @@
       var t=document.getElementById('bq-t'); if(t) t.textContent='Mentre aspetti il tuo piatto\u2026';
       var pp=document.querySelector('#bq-pop p'); if(pp) pp.textContent='\u2026gioca a Brady\u2019s Quest! Aiuta Brady a consegnare il caff\u00e8 a Erika prima che chiuda l\u2019imbarco.';
       var pn=document.querySelector('#keik-menu .k-pass-n'); if(pn) pn.textContent='Condividilo con chi vuoi portare con te nel tuo prossimo viaggio da KEIK.';
+      var ep=document.querySelector('#keik-menu .k-exp-p'); if(ep) ep.innerHTML='Parti dal momento della giornata o da una destinazione. Tocca <b>Aggiungi</b> su quello che prenderesti: nasce il tuo itinerario, da condividere con chi vuoi portare la prossima volta.';
       var sm=document.querySelector('#keik-menu .k-share small'); if(sm) sm.textContent='con chi vuoi portare la prossima volta';
     }
     (function(){
       var pop=document.getElementById('bq-pop'); if(!pop) return;
-      var KEY='bq_popup_visto', WAIT=SALA?12000:30000, started=false, acc=0, last=0, timer=null;
+      var KEY='bq_popup_visto', WAIT=SALA?45000:30000, started=false, acc=0, last=0, timer=null;
       function seen(){ try{ return sessionStorage.getItem(KEY)==='1'; }catch(e){ return false; } }
       function mark(){ try{ sessionStorage.setItem(KEY,'1'); }catch(e){} }
       function show(){ if(seen()) return; mark(); pop.hidden=false; requestAnimationFrame(function(){ pop.classList.add('bq-on'); }); }
       function hide(){ pop.classList.remove('bq-on'); setTimeout(function(){ pop.hidden=true; },250); }
       function tick(){ if(document.hidden){ last=Date.now(); return; } var n=Date.now(); acc+=n-last; last=n; if(acc>=WAIT){ clearInterval(timer); show(); } }
       function start(){ if(started||seen()) return; started=true; last=Date.now(); timer=setInterval(tick,500); window.removeEventListener('scroll',start); window.removeEventListener('touchmove',start); }
-      if(SALA) setTimeout(start,800);
-  window.addEventListener('scroll',start,{passive:true}); window.addEventListener('touchmove',start,{passive:true});
+      window.addEventListener('scroll',start,{passive:true}); window.addEventListener('touchmove',start,{passive:true});
       pop.querySelector('.bq-no').addEventListener('click',hide);
       pop.querySelector('.bq-x').addEventListener('click',hide);
       pop.addEventListener('click',function(e){ if(e.target===pop) hide(); });
