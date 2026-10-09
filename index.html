@@ -118,7 +118,7 @@ h2.sec{font-size:16px;margin:8px 0 0;font-weight:700}
       <h2 id="scr-title">Le avventure di Brady</h2>
       <p id="scr-text">Accompagna Brady nelle sue avventure intorno al mondo, viaggiando col gusto e divertendoti. Abbiamo creato questo gioco per farti compagnia nei momenti di attesa e aiutarti a rilassarti quando ne hai bisogno. Il gioco è in continuo sviluppo: aggiungeremo sempre nuove tappe e sorprese.</p>
       <p class="stats" id="scr-stats" hidden></p>
-      <div class="btns"><button class="btn" id="btn-play">Gioca</button><button class="btn alt only-touch" id="btn-fs">Schermo intero</button></div>
+      <div class="btns"><button class="btn" id="btn-play">Gioca</button><button class="btn alt" id="btn-retry" hidden>Puoi fare di più? Ripeti il livello</button><button class="btn alt only-touch" id="btn-fs">Schermo intero</button></div>
       <p class="only-touch tip">Gira il telefono e gioca a schermo intero.</p>
     </div>
   </div>
@@ -269,7 +269,7 @@ function end(win,title,text){
   const st=$('scr-stats');
   if(win){st.hidden=false;st.textContent='Fiori '+flowers+'/'+totalF+' · Timbri '+stamps+'/4 · Tempo rimasto '+Math.ceil(left)+' s';}
   else st.hidden=true;
-  $('btn-play').textContent=win?'Mappa':'Riprova';$('screen').hidden=false;
+  $('btn-play').textContent=win?'Mappa':'Riprova';$('btn-retry').hidden=!win;$('screen').hidden=false;
 }
 const GROW=1.1,POW=1.0;
 function boom(x,y){shake=Math.max(shake,.18);beep(90,.2,'sawtooth');beep(180,.12,'square');
@@ -819,6 +819,7 @@ function exitFS(){const ar=$('area');ar.classList.remove('fs');try{if(document.f
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&$('area').classList.contains('fs')){$('area').classList.remove('fs');resize();}});
 $('btn-fs').addEventListener('click',()=>{enterFS();$('btn-play').click();});
 $('btn-exit').addEventListener('click',exitFS);
+$('btn-retry').addEventListener('click',()=>{if(state!=='win')return;mapComplete(0);M.auto=0;M.cur=0;$('btn-retry').hidden=true;startLevel();});
 $('btn-play').addEventListener('click',()=>{
   if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)();}catch(e){ac=null;}}
   if(state==='over'){startLevel();return;}
