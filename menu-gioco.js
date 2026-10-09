@@ -25,7 +25,8 @@
       [].forEach.call(document.querySelectorAll('.bq-card small'),function(s){ s.textContent='Brady\u2019s Quest, il gioco del Viaggio col Gusto'; });
       var t=document.getElementById('bq-t'); if(t) t.textContent='Mentre aspetti il tuo piatto\u2026';
       var pp=document.querySelector('#bq-pop p'); if(pp) pp.textContent='\u2026gioca a Brady\u2019s Quest! Aiuta Brady a consegnare il caff\u00e8 a Erika prima che chiuda l\u2019imbarco.';
-      var pn=document.querySelector('#keik-menu .k-pass-n'); if(pn) pn.textContent='Non \u00e8 un ordine: mostralo al nostro staff quando ordini, oppure mandalo a chi \u00e8 al tavolo con te.';
+      var pn=document.querySelector('#keik-menu .k-pass-n'); if(pn) pn.textContent='Condividilo con chi vuoi portare con te nel tuo prossimo viaggio da KEIK.';
+      var sm=document.querySelector('#keik-menu .k-share small'); if(sm) sm.textContent='con chi vuoi portare la prossima volta';
     }
     (function(){
       var pop=document.getElementById('bq-pop'); if(!pop) return;
