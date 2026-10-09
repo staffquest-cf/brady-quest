@@ -746,34 +746,40 @@ function drawEnemy(e){
   }
 }
 function drawPit(x0,w,cx){
-  // sotto-pavimento: tubi e cavi, con profondità
+  // buco: vuoto nero, pareti del pozzo in prospettiva, tubi lontani, cavi tranciati
   const H=VH-G,x1=x0+w;ctx.save();ctx.beginPath();ctx.rect(x0,G,w,H);ctx.clip();
-  const g=ctx.createLinearGradient(0,G,0,VH);g.addColorStop(0,'#2b3650');g.addColorStop(1,'#0a0f1c');ctx.fillStyle=g;ctx.fillRect(x0,G,w,H);
-  const o=Math.round((cx-x0)*.12),bx=x0-o-48;
-  // pannelli di cemento sul fondo
-  ctx.fillStyle='#232d44';for(let x=bx;x<x1+48;x+=24){ctx.fillRect(x,G,1,H);}
-  ctx.fillStyle='#34405c';for(let x=bx;x<x1+48;x+=24){ctx.fillRect(x+3,G+30,2,2);ctx.fillRect(x+19,G+30,2,2);}
-  // tubo grande grigio con flange
-  let y=G+9;ctx.fillStyle='#4a5672';ctx.fillRect(x0,y,w,8);ctx.fillStyle='#8593ad';ctx.fillRect(x0,y+1,w,2);ctx.fillStyle='#2c3550';ctx.fillRect(x0,y+7,w,1);
-  for(let x=bx+10;x<x1+48;x+=34){ctx.fillStyle='#2c3550';ctx.fillRect(x,y-1,4,10);ctx.fillStyle='#9aa8c0';ctx.fillRect(x+1,y,1,8);}
-  // tubo arancione (acqua calda) più sottile
-  y=G+21;ctx.fillStyle='#a24f22';ctx.fillRect(x0,y,w,5);ctx.fillStyle='#e0801e';ctx.fillRect(x0,y+1,w,1);ctx.fillStyle='#5e2b12';ctx.fillRect(x0,y+4,w,1);
-  for(let x=bx+26;x<x1+48;x+=34){ctx.fillStyle='#5e2b12';ctx.fillRect(x,y-1,3,7);}
-  // tubo verticale che scende con gomito
-  const vx=bx+48+((x0/T*7)%3)*16;ctx.fillStyle='#4a5672';ctx.fillRect(vx,G+17,6,H);ctx.fillStyle='#8593ad';ctx.fillRect(vx+1,G+17,1,H);ctx.fillStyle='#2c3550';ctx.fillRect(vx-1,G+15,8,3);
-  // cavi che pendono
-  const cav=[['#ffc21a',G+4,5],['#d94a3a',G+6,8],['#2f8fd0',G+3,11]];
-  cav.forEach(([c,cy,sag],k)=>{ctx.fillStyle=c;const sp=40+k*6,st=bx-k*13;
-    for(let a=st;a<x1+48;a+=sp)for(let i=0;i<=sp;i++){const t=i/sp,yy=Math.round(cy+sag*4*t*(1-t));ctx.fillRect(a+i,yy,1,1);}
-    for(let a=st;a<x1+48;a+=sp){ctx.fillStyle='#101826';ctx.fillRect(a-1,cy-1,3,2);ctx.fillStyle=c;}});
-  // luce di servizio che lampeggia
-  if(Math.floor(time*2+x0)%2){ctx.fillStyle='#ff5a3c';ctx.fillRect(bx+70,G+33,2,2);ctx.fillStyle='rgba(255,90,60,.25)';ctx.fillRect(bx+68,G+31,6,6);}
-  // buio verso il fondo = profondità
-  const d=ctx.createLinearGradient(0,G,0,VH);d.addColorStop(0,'rgba(5,8,15,.15)');d.addColorStop(.55,'rgba(5,8,15,.55)');d.addColorStop(1,'rgba(2,3,8,.95)');ctx.fillStyle=d;ctx.fillRect(x0,G,w,H);
-  // ombra sotto il bordo del pavimento e spessore della soletta ai lati
-  ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(x0,G,w,3);
-  ctx.fillStyle='#1a2235';ctx.fillRect(x0,G,4,H);ctx.fillRect(x1-4,G,4,H);ctx.fillStyle='#56627d';ctx.fillRect(x0+3,G,1,8);ctx.fillRect(x1-4,G,1,8);
+  ctx.fillStyle='#03050a';ctx.fillRect(x0,G,w,H);
+  const o=Math.round((cx-x0)*.08),bx=x0-o-48,q=Math.min(14,w*.18);
+  // fondo lontano: tubi piccoli e scuri
+  ctx.fillStyle='#1b2335';ctx.fillRect(x0,G+22,w,4);ctx.fillStyle='#2c3852';ctx.fillRect(x0,G+22,w,1);
+  for(let x=bx+10;x<x1+48;x+=30){ctx.fillStyle='#111827';ctx.fillRect(x,G+21,3,6);}
+  ctx.fillStyle='#3a1d0e';ctx.fillRect(x0,G+30,w,3);ctx.fillStyle='#5a2d14';ctx.fillRect(x0,G+30,w,1);
+  const vx=bx+40+((x0/T*7)%3)*14;ctx.fillStyle='#161e2e';ctx.fillRect(vx,G+18,4,H);ctx.fillStyle='#26314a';ctx.fillRect(vx,G+18,1,H);
+  // pareti del pozzo che si restringono verso il basso
+  for(let i=0;i<H;i++){const k=i/H,ww=Math.round(q*(.35+k*.65));const c=Math.round(70-k*62);ctx.fillStyle=`rgb(${c*.55|0},${c*.65|0},${c})`;
+    ctx.fillRect(x0,G+i,ww,1);ctx.fillRect(x1-ww,G+i,ww,1);}
+  ctx.fillStyle='rgba(0,0,0,.35)';for(let i=6;i<H;i+=8){ctx.fillRect(x0,G+i,q,1);ctx.fillRect(x1-q,G+i,q,1);}
+  // sezione della soletta: cemento tagliato con i ferri
+  ctx.fillStyle='#7c879c';ctx.fillRect(x0,G,5,9);ctx.fillRect(x1-5,G,5,9);
+  ctx.fillStyle='#4a5468';ctx.fillRect(x0+5,G,1,9);ctx.fillRect(x1-6,G,1,9);
+  ctx.fillStyle='#2a3142';for(const yy of [G+3,G+6]){ctx.fillRect(x0+1,yy,2,1);ctx.fillRect(x1-3,yy,2,1);}
+  ctx.fillStyle='#a0583a';ctx.fillRect(x0+5,G+4,3,1);ctx.fillRect(x1-8,G+4,3,1);
+  // cavi tranciati che pendono nel vuoto
+  const cav=[['#ffc21a',x0+q+4,14],['#d94a3a',x0+q+9,20],['#2f8fd0',x1-q-6,17]];
+  for(const [c,cxx,len] of cav){const sw=Math.round(Math.sin(time*1.6+cxx)*1.5);ctx.fillStyle=c;
+    for(let i=0;i<len;i++)ctx.fillRect(cxx+Math.round(sw*i/len),G+i,1,1);
+    ctx.fillStyle='#d8dde6';ctx.fillRect(cxx+sw,G+len,1,1);
+    if(Math.floor(time*5+cxx)%9===0){ctx.fillStyle='#fff6a8';ctx.fillRect(cxx+sw-1,G+len,3,1);ctx.fillRect(cxx+sw,G+len-1,1,3);}}
+  // polvere che cade
+  ctx.fillStyle='rgba(200,210,225,.35)';for(let k=0;k<4;k++){const px=x0+q+((k*37+x0)%Math.max(1,w-2*q)),py=G+((time*18+k*13)%H);ctx.fillRect(px|0,py|0,1,1);}
+  // buio totale sul fondo
+  const d=ctx.createLinearGradient(0,G,0,VH);d.addColorStop(0,'rgba(0,0,0,0)');d.addColorStop(.5,'rgba(0,0,0,.45)');d.addColorStop(1,'rgba(0,0,0,1)');ctx.fillStyle=d;ctx.fillRect(x0,G,w,H);
   ctx.restore();}
+function drawPitEdge(x0,x1){
+  // bordo del buco: strisce di pericolo giallo/nere sul pavimento
+  for(const [a,dir] of [[x0-14,1],[x1,-1]]){ctx.save();ctx.beginPath();ctx.rect(a,G,14,4);ctx.clip();
+    ctx.fillStyle='#ffc21a';ctx.fillRect(a,G,14,4);ctx.fillStyle='#101826';for(let i=-6;i<20;i+=6){ctx.beginPath();ctx.moveTo(a+i,G+4);ctx.lineTo(a+i+3,G+4);ctx.lineTo(a+i+7,G);ctx.lineTo(a+i+4,G);ctx.fill();}
+    ctx.restore();ctx.fillStyle='#101826';ctx.fillRect(dir>0?x0-1:x1,G,1,6);}}
 function draw(){
   ctx.setTransform(1,0,0,1,0,0);ctx.imageSmoothingEnabled=false;
   const cx=Math.round(cam+(shake>0?(Math.random()-.5)*5:0));
@@ -801,7 +807,8 @@ function draw(){
   ctx.fillStyle='#ffc21a';rr(GATE+12,G-67,40,12,2);ctx.fill();ctx.fillStyle='#101826';ctx.font='8px Silkscreen,monospace';ctx.fillText('K51',GATE+23,G-58);
   // buchi e vasca
   ctx.fillStyle='#0c1322';ctx.fillRect(0,G,LW,VH-G);
-  {const gs=solids.filter(s=>s.t==='g').sort((p,q)=>p.x-q.x);for(let i=0;i<gs.length-1;i++){const x0=gs[i].x+gs[i].w,x1=gs[i+1].x;if(x1>x0&&x1>cx&&x0<cx+VW&&!waters.some(w=>w.x<x1&&w.x+w.w>x0))drawPit(x0,x1-x0,cx);}}
+  const PITS=[];{const gs=solids.filter(s=>s.t==='g').sort((p,q)=>p.x-q.x);for(let i=0;i<gs.length-1;i++){const x0=gs[i].x+gs[i].w,x1=gs[i+1].x;if(x1>x0&&x1>cx-20&&x0<cx+VW+20&&!waters.some(w=>w.x<x1&&w.x+w.w>x0))PITS.push([x0,x1]);}}
+  for(const [a,b] of PITS)drawPit(a,b-a,cx);
   for(const w of waters){ctx.fillStyle='#bfe6fb';ctx.fillRect(w.x,G,w.w,VH-G);}
   // pavimento e mobili
   for(const s of solids){
@@ -822,6 +829,7 @@ function draw(){
       if(!s.used){ctx.fillStyle='#101826';ctx.font='16px Silkscreen,monospace';ctx.textAlign='center';ctx.fillText('?',s.x+12,Math.round(by)+18);ctx.textAlign='left';}}
     else{ctx.fillStyle='#8fb8cf';ctx.fillRect(s.x,s.y,s.w,6);}
   }
+  for(const [a,b] of PITS)drawPitEdge(a,b);
   if(AOK)for(const b of belts){ctx.save();ctx.beginPath();ctx.rect(b.x,G,b.w,T);ctx.clip();const o=((time*b.v)%T+T)%T;
     for(let x=b.x-T+o;x<b.x+b.w;x+=T)img('belt',x,G,b.v<0);ctx.restore();}
   else for(const b of belts){ctx.fillStyle='#2a3550';ctx.fillRect(b.x,G,b.w,6);ctx.fillStyle='#ffc21a';const o=((time*b.v)%12+12)%12;
