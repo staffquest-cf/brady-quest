@@ -216,7 +216,7 @@ function build(){
   const en=(t,a,b)=>enemies.push(t==='s'?{t,x:a*T,y:G-18,w:20,h:18,a:a*T,b:b*T,v:36,dead:false}:{t,x:a*T,y:G-22,w:24,h:22,a:a*T,b:b*T,v:28,dead:false});
   const HY=G-86+14;
   const qb=(c,item)=>solids.push({x:c*T,y:G-90,w:T,h:T,t:'q',item,used:false,bump:0});
-  qb(8,'b');qb(34,'p');qb(47,'m');qb(90,'b');qb(112,'p');qb(136,'b');qb(156,'m'); // altezza dei fiori sotto i tubi
+  qb(8,'b');qb(34,'p');qb(47,'m');qb(90,'b');qb(112,'p');qb(136,'b');qb(156,'m');qb(178.6,'p'); // altezza dei fiori sotto i tubi
   // CHECK-IN
   gnd(0,22); box(17,1,2); rail(20.5,27.5);
   fl([5,6,7,12,13]); it('f',17.5,G-38); fl([23,24,25],HY); en('s',9,15);
@@ -434,11 +434,11 @@ function bossUpdate(dt){
   if(B.x<ARENA)B.x=ARENA;if(B.x>GATE-B.w)B.x=GATE-B.w;
   const hb=p.big>0?{x:p.x-14,y:p.y-40,w:p.w+28,h:p.h+40}:p;
   if(B.inv<=0&&hit(hb,B)){
-    const top=B.phase===1||B.state==='kneel'||B.state==='hurt';
+    const top=B.phase===1||B.state==='kneel'||B.state==='hurt'||p.big>0;
     const above=p.vy>=0&&p.y+p.h-B.y<22;
     if(above&&top){p.vy=-420;p.on=false;bossHit(1,1);}
     else if(above){p.vy=-330;p.on=false;beep(700,.08,'triangle');}
-    else if(p.big>0){bossHit(1,1.2);p.x+=pc<bc?-30:30;}
+    else if(p.big>0){p.x+=pc<bc?-30:30;beep(220,.08,'square');}
     else if(p.inv<=0){if(p.vy>0&&!p.on&&p.y+p.h-B.y<22){p.vy=-300;beep(700,.08,'triangle');}else{lose(false);if(state!=='play')return false;p.x+=pc<bc?-26:26;}}}
   for(const e of eshots){e.x+=e.vx*dt;e.y+=e.vy*dt;e.life-=dt;
     if(e.k==='v'&&(e.x<ARENA||e.x>GATE))e.life=0;
@@ -456,7 +456,7 @@ function update(dt){
     if(p.grow<=0){p.grow=0;shake=.3;beep(880,.25,'triangle');}
     hud();return;}
   if(B.intro>0){B.intro-=dt;cam+=(camTarget()-cam)*Math.min(1,dt*6);if(Math.floor(B.intro*6)!==Math.floor((B.intro+dt)*6))beep(110,.08,'square');hud();return;}
-  if(!B.active&&!B.dead&&p.x>ARENA+T){B.active=true;B.intro=1.6;B.tt=2.4;left+=30;shake=.3;pops.push({x:p.x+9,y:p.y-14,text:'+30s',life:1.4});fact('Boss','Il Mega Robot Pulitore blocca il gate. Sali sulle piattaforme e saltagli sul coperchio, oppure colpiscilo con i burrito. Attento: non è finita qui.');hud(true);return;}
+  if(!B.active&&!B.dead&&p.x>ARENA+T){B.active=true;B.intro=1.6;B.tt=2.4;left+=30;shake=.3;pops.push({x:p.x+9,y:p.y-14,text:'+30s',life:1.4});fact('Boss','Il Mega Robot Pulitore blocca il gate. Sali sulle piattaforme e saltagli sul coperchio, oppure colpiscilo con i burrito. Con i pancake puoi saltargli in testa quando vuoi, ma durano solo 10 secondi!');hud(true);return;}
   B.tt=Math.max(0,(B.tt||0)-dt);
   if(B.tf>0){B.tf-=dt;cam+=(camTarget()-cam)*Math.min(1,dt*6);const k=Math.floor(B.tf*8);if(k!==B.tfk){B.tfk=k;beep(140+(16-k)*40,.07,'square');shake=.15;burst(B.x+Math.random()*B.w,B.y+Math.random()*B.h,Math.random()<.5?'#ffc21a':'#ffffff',6);}
     if(B.tf<=0){shake=.5;beep(70,.4,'sawtooth');p.mflash=0;}hud();return;}
@@ -526,7 +526,7 @@ function update(dt){
     if(i.t==='f'){flowers++;beep(880,.05,'triangle');once('fl','Lo sapevi?','I fiori di ibisco sono una vera golosità per i bradipi.');}
     else if(i.t==='m'){p.power=null;p.ammo=0;p.big=0;p.grow=0;p.turbo=8;p.pow=POW;p.pst=-1;p.mflash=.3;shake=.2;pw('Turbo matcha','Per 8 secondi Brady va al doppio. In natura, invece, digerisce un pasto anche in un mese.');pops.pop();p.mtitle=2.3;p.mt=['MATCHA','POWER','#ffffff','#2fbf3a','#8dff4a','#ffffff','#0b2a10'];}
     else if(i.t==='a'){oneUp();fact('Avocado','Una vita in più per Brady.');}
-    else if(i.t==='p'){p.power=null;p.ammo=0;p.turbo=0;p.pow=0;p.hang=null;p.big=10;p.bigT=0;p.grow=GROW;p.gst=-1;p.inv=0;p.mtitle=2.3;p.mt=['PANCAKES','FORCE','#ffffff','#e0801e','#ffc21a','#ffffff','#3a1a00'];p.mflash=0;pw('Pancake power','Brady diventa enorme e muscoloso: per 10 secondi è invincibile e travolge tutto.');pops.pop();}
+    else if(i.t==='p'){p.power=null;p.ammo=0;p.turbo=0;p.pow=0;p.hang=null;p.big=10;p.bigT=0;p.grow=GROW;p.gst=-1;p.inv=0;p.mtitle=2.3;p.mt=['PANCAKES','FORCE','#ffffff','#e0801e','#ffc21a','#ffffff','#3a1a00'];p.mflash=0;pw('Pancake power',p.x>170*T?'Per 10 secondi Brady è invincibile e può saltare in testa al boss quando vuole. Sbrigati: dopo valgono di nuovo le regole!':'Brady diventa enorme e muscoloso: per 10 secondi è invincibile e travolge tutto.');pops.pop();}
     else if(i.t==='t'){burst(i.x,i.y,'#b98ae8',14);pops.push({x:i.x,y:i.y-12,text:'TIMBRO '+(stamps+1)+'/4',life:1.2});stamps++;beep(1040,.25,'triangle');fact('Timbro','Timbro '+stamps+' di 4 sul passaporto.');}
     else if(i.t==='b'){p.big=0;p.grow=0;p.turbo=0;p.pow=0;p.power='b';p.ammo=5;pw('Burrito bazooka','Premi Azione (o X): Brady spara 5 burrito esplosivi.');pops.pop();p.mtitle=2.3;p.mt=['BURRITO','BAZOOKA','#ffffff','#e4572e','#ffc21a','#ffffff','#3a0d00'];shake=.2;}
     else if(i.t==='l'){p.power='l';pw('Foglia di cecropia','Tieni premuto Salta mentre cadi: Brady plana con la foglia.');}
