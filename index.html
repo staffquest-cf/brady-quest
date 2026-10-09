@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Brady's Quest · il gioco di KEIK</title>
 <meta name="description" content="Aiuta Brady il bradipo a consegnare il caffè KEIK al gate K51 prima che chiuda l'imbarco. Il gioco che accompagna il tuo Viaggio col Gusto da KEIK.">
 <meta name="theme-color" content="#121d33">
@@ -88,7 +88,16 @@ h2.sec{font-size:16px;margin:8px 0 0;font-weight:700}
 #area.fs .stage{border:0;border-radius:0}
 html.bq-fs,html.bq-fs body{overflow:hidden;height:100%;overscroll-behavior:none;touch-action:none}
 #area.fs{height:100dvh}
-.ios-tip{font-size:12.5px;max-width:40ch}
+#area,#area *{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.ios-sh{vertical-align:-5px;color:#4fa3ff}
+#ios-pop{position:absolute;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(12,19,34,.72)}
+#ios-pop[hidden]{display:none}
+#ios-pop .ios-box{background:#121d33;border:3px solid #ffc21a;border-radius:14px;box-shadow:0 6px 0 #101826;padding:14px 18px;max-width:420px;width:100%;color:#f1f5fb;text-align:left;max-height:100%;overflow:auto}
+#ios-pop h3{margin:0 0 4px;color:#ffc21a;font-size:19px;font-family:'Silkscreen',var(--mono);font-weight:400;letter-spacing:.03em}
+#ios-pop p{margin:0 0 6px;font-size:13.5px;color:var(--mute)}
+#ios-pop ol{margin:0 0 10px;padding-left:22px;font-size:14.5px;line-height:1.7}
+#ios-pop .ios-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+#ios-pop .btn{font-size:15px;padding:8px 20px}
 .menu-back{display:none;font-size:12.5px;color:var(--sign);text-decoration:underline}
 #area.fs .menu-back{display:inline-block}
 #area.fs:has(#screen:not([hidden])) .pad,#area.fs:has(#screen:not([hidden])) .exitfs{display:none!important}
@@ -127,7 +136,7 @@ html.bq-fs,html.bq-fs body{overflow:hidden;height:100%;overscroll-behavior:none;
       <p id="scr-text">Accompagna Brady nelle sue avventure intorno al mondo, viaggiando col gusto e divertendoti. Abbiamo creato questo gioco per farti compagnia nei momenti di attesa e aiutarti a rilassarti quando ne hai bisogno. Il gioco è in continuo sviluppo: aggiungeremo sempre nuove tappe e sorprese.</p>
       <p class="stats" id="scr-stats" hidden></p>
       <div class="btns"><button class="btn" id="btn-play">Gioca</button><button class="btn alt" id="btn-retry" hidden>Puoi fare di più? Ripeti il livello</button><button class="btn alt only-touch" id="btn-fs" hidden>Schermo intero</button></div>
-      <p class="only-touch tip">Gira il telefono in orizzontale: il gioco si apre a tutto schermo.</p><a class="menu-back" id="menu-back" href="https://www.keik.it/pages/menu-all-day-kitchen">&larr; Torna al menu KEIK</a><p class="tip ios-tip" id="ios-tip" hidden>Su iPhone per il vero tutto schermo: tocca <b>Condividi</b> e poi <b>Aggiungi alla schermata Home</b>, poi apri Brady's Quest dall'icona.</p>
+      <p class="only-touch tip">Gira il telefono in orizzontale: il gioco si apre a tutto schermo.</p><a class="menu-back" id="menu-back" href="https://www.keik.it/pages/menu-all-day-kitchen">&larr; Torna al menu KEIK</a>
     </div>
   </div>
 
@@ -143,6 +152,12 @@ html.bq-fs,html.bq-fs body{overflow:hidden;height:100%;overscroll-behavior:none;
       <button class="key jump" id="k-jump">Salta</button>
     </div>
   </div>
+<div id="ios-pop" hidden role="dialog" aria-modal="true" aria-labelledby="ios-t"><div class="ios-box">
+<h3 id="ios-t">Gioca a tutto schermo</h3>
+<p>Su iPhone il gioco va meglio dalla schermata Home, senza barre del browser:</p>
+<ol><li>Tocca <b>Condividi</b> <svg class="ios-sh" width="22" height="26" viewBox="0 0 22 26" aria-hidden="true"><path d="M11 2v14M6 7l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 11H3v13h16V11h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg> nella barra di Safari</li><li>Scegli <b>Aggiungi alla schermata Home</b></li><li>Apri <b>Brady's Quest</b> dall'icona</li></ol>
+<div class="ios-btns"><button type="button" class="btn" id="ios-ok">Ho capito</button><button type="button" class="btn alt" id="ios-skip">Gioca qui</button></div>
+</div></div>
   <div id="rotate"><svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true"><rect x="20" y="8" width="24" height="44" rx="4" fill="none" stroke="#ffc21a" stroke-width="4"/><path d="M50 40a18 18 0 0 1-18 16" fill="none" stroke="#ffffff" stroke-width="3"/><path d="M28 52l4 4-4 4" fill="none" stroke="#ffffff" stroke-width="3"/></svg><b>Gira il telefono</b><span>Brady's Quest si gioca in orizzontale</span></div>
   <button id="btn-exit" class="exitfs" aria-label="Esci dallo schermo intero">✕</button>
   </div>
@@ -831,7 +846,16 @@ $('btn-retry').addEventListener('click',()=>{if(state!=='win')return;mapComplete
 const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const STANDALONE=!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches));
 const TOUCH=!!(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart' in window);
-if(IOS&&!STANDALONE)$('ios-tip').hidden=false;
+function iosPop(show){$('ios-pop').hidden=!show;}
+if(IOS&&!STANDALONE){let seenP=false;try{seenP=sessionStorage.getItem('bq_ios')==='1';}catch(e){}if(!seenP)setTimeout(()=>iosPop(true),400);}
+$('ios-ok').addEventListener('click',()=>{try{sessionStorage.setItem('bq_ios','1');}catch(e){}iosPop(false);});
+$('ios-skip').addEventListener('click',()=>{try{sessionStorage.setItem('bq_ios','1');}catch(e){}iosPop(false);});
+/* niente zoom accidentale su iPhone: blocca pizzico e doppio tocco */
+['gesturestart','gesturechange','gestureend'].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
+let lastTouchEnd=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lastTouchEnd<350&&e.target.closest&&e.target.closest('#area'))e.preventDefault();lastTouchEnd=n;},{passive:false});
+function resetZoom(){const m=document.querySelector('meta[name=viewport]');if(!m)return;const c='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';m.setAttribute('content',c+',x');setTimeout(()=>m.setAttribute('content',c),30);}
+window.addEventListener('orientationchange',()=>setTimeout(resetZoom,200));
+if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(visualViewport.scale>1.01&&$('area').classList.contains('fs'))resetZoom();});
 if(TOUCH){$('area').classList.add('fs');document.documentElement.classList.add('bq-fs');setTimeout(resize,60);setTimeout(resize,400);}
 $('btn-play').addEventListener('click',()=>{
   if(TOUCH&&!$('area').classList.contains('fs'))enterFS();
