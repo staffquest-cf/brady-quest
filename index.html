@@ -89,6 +89,11 @@ h2.sec{font-size:16px;margin:8px 0 0;font-weight:700}
 html.bq-fs,html.bq-fs body{overflow:hidden;height:100%;overscroll-behavior:none;touch-action:none}
 #area.fs{height:100dvh}
 #area,#area *{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.btn.share{background:#c2289f;color:#fff;box-shadow:0 4px 0 #8c1a72}
+#omaggio{margin:0;font-size:12.5px;background:#ffc21a;color:#101826;border:2px solid #101826;border-radius:6px;padding:6px 10px;max-width:46ch;text-shadow:none}
+#omaggio span{display:block;font-family:var(--mono);font-size:11px;opacity:.8}
+.lnk{background:none;border:0;color:var(--sign);text-decoration:underline;font:inherit;font-size:13px;cursor:pointer;padding:2px}
+.screen{overflow:auto}
 .ios-sh{vertical-align:-5px;color:#4fa3ff}
 #ios-pop{position:absolute;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(12,19,34,.72)}
 #ios-pop[hidden]{display:none}
@@ -148,8 +153,8 @@ html.bq-fs,html.bq-fs body{overflow:hidden;height:100%;overscroll-behavior:none;
       <h2 id="scr-title">Le avventure di Brady</h2>
       <p id="scr-text">Accompagna Brady nelle sue avventure intorno al mondo, viaggiando col gusto e divertendoti. Abbiamo creato questo gioco per farti compagnia nei momenti di attesa e aiutarti a rilassarti quando ne hai bisogno. Il gioco è in continuo sviluppo: aggiungeremo sempre nuove tappe e sorprese.</p>
       <p class="stats" id="scr-stats" hidden></p>
-      <div class="btns"><button class="btn" id="btn-play">Gioca</button><button class="btn alt" id="btn-retry" hidden>Puoi fare di più? Ripeti il livello</button><button class="btn alt only-touch" id="btn-fs" hidden>Schermo intero</button></div>
-      <p class="only-touch tip">Gira il telefono in orizzontale: il gioco si apre a tutto schermo.</p><a class="menu-back" id="menu-back" href="https://www.keik.it/pages/menu-all-day-kitchen">&larr; Torna al menu KEIK</a>
+      <div class="btns"><button class="btn" id="btn-play">Gioca</button><button class="btn alt" id="btn-retry" hidden>Puoi fare di più? Ripeti il livello</button><button class="btn share" id="btn-share" hidden>&#128242; Sfida un amico</button><button class="btn alt only-touch" id="btn-fs" hidden>Schermo intero</button></div>
+      <p class="omaggio" id="omaggio" hidden>&#127873; <b>Sei da KEIK?</b> Mostra questa schermata in cassa: c'è un piccolo omaggio per te! <span id="om-date"></span></p><button class="lnk" id="btn-card" hidden>Salva la cartolina del tuo viaggio</button><p class="only-touch tip" id="tip-rot">Gira il telefono in orizzontale: il gioco si apre a tutto schermo.</p><a class="menu-back" id="menu-back" href="https://www.keik.it/pages/menu-all-day-kitchen">&larr; Torna al menu KEIK</a>
     </div>
   </div>
 
@@ -305,7 +310,10 @@ function end(win,title,text){
   const st=$('scr-stats');
   if(win){st.hidden=false;st.textContent='Fiori '+flowers+'/'+totalF+' · Timbri '+stamps+'/4 · Tempo rimasto '+Math.ceil(left)+' s';}
   else st.hidden=true;
-  $('btn-play').textContent=win?'Mappa':'Riprova';$('btn-retry').hidden=!win;$('screen').hidden=false;
+  $('btn-play').textContent=win?'Mappa':'Riprova';$('btn-retry').hidden=!win;
+  LAST={win,left:Math.ceil(left),stamps,flowers,totalF};$('btn-share').hidden=false;$('btn-card').hidden=false;
+  $('omaggio').hidden=!win;if(win){const n=new Date();$('om-date').textContent=n.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})+' · ore '+n.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})+' · fino a esaurimento';}
+  if($('tip-rot'))$('tip-rot').hidden=true;$('screen').hidden=false;
 }
 const GROW=1.1,POW=1.0;
 function boom(x,y){shake=Math.max(shake,.18);beep(90,.2,'sawtooth');beep(180,.12,'square');
@@ -323,7 +331,7 @@ CU.forEach(c=>{if(!c.d)c.d=1.4+c.t.length*.045;});
 function cuPanel(ct){let a=0;for(let i=0;i<CU.length;i++){if(ct<a+CU[i].d)return [i,ct-a];a+=CU[i].d;}return [CU.length,0];}
 function finishCut(){cut=null;beep(1200,.4,'triangle');
   end(true,stamps===4?'Consegna perfetta!':'Consegna completata!',
-    'Erika è partita con il suo caffè KEIK. '+(stamps===4?'E Brady ha tutti e 4 i timbri sul passaporto. ':'Timbri raccolti: '+stamps+' di 4. ')+'Lo sapevi? '+FACTS[Math.floor(Math.random()*FACTS.length)]);}
+    'Erika è partita con il suo caffè KEIK.'+(stamps===4?' E Brady ha tutti e 4 i timbri sul passaporto!':''));}
 function cutUpdate(dt){const t=(cut.t+=dt),tx=GATE-4;
   if(p.x<tx){p.x=Math.min(tx,p.x+55*dt);p.vx=55;p.anim+=dt*8;p.face=1;}else{p.vx=0;}
   p.y=G-p.h;p.on=true;p.vy=0;
@@ -864,6 +872,32 @@ function exitFS(){const ar=$('area');ar.classList.remove('fs');document.document
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&$('area').classList.contains('fs')&&!STANDALONE){$('area').classList.remove('fs');document.documentElement.classList.remove('bq-fs');resize();}});
 $('btn-fs').addEventListener('click',()=>{enterFS();$('btn-play').click();});
 $('btn-exit').addEventListener('click',exitFS);
+let LAST=null;const SHARE_URL='https://gioco.keik.it/?ref=sfida';
+function mmss(s){s=Math.max(0,s|0);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function shareText(){if(!LAST)return 'Gioca a Brady’s Quest, il gioco di KEIK!';return LAST.win?('Ho consegnato il caffè a Erika con '+mmss(LAST.left)+' di anticipo e '+LAST.stamps+' timbri su 4 ☕✈️ Riesci a fare meglio?'):'Brady non ce l’ha fatta a consegnare il caffè prima dell’imbarco… tu ci riesci? ☕✈️';}
+function makeCard(cb){const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.imageSmoothingEnabled=false;
+  const F="'Silkscreen',monospace",S="'Fredoka','Trebuchet MS',sans-serif";
+  x.fillStyle='#121d33';x.fillRect(0,0,W,H);x.fillStyle='#1c2c4c';for(let i=0;i<H;i+=48)x.fillRect(0,i,W,2);
+  x.fillStyle='#101826';x.fillRect(48,48,W-96,150);x.fillStyle='#ffc21a';x.fillRect(42,42,W-96,150);
+  x.fillStyle='#101826';x.font='26px '+F;x.fillText('PARTENZE · VOLO KK2013',80,96);x.font='64px '+F;x.fillText("BRADY'S QUEST",80,166);
+  const iy=230,ih=520;x.fillStyle='#000';x.fillRect(42,iy,W-84,ih);
+  if(LAST&&LAST.win&&CFOK){const s=Math.max((W-84)/CFI.width,ih/CFI.height),w=CFI.width*s,h=CFI.height*s;x.save();x.beginPath();x.rect(42,iy,W-84,ih);x.clip();x.imageSmoothingEnabled=true;x.drawImage(CFI,42+(W-84-w)/2,iy+(ih-h)/2,w,h);x.restore();}
+  else{const lg=document.querySelector('.sign .logo');if(lg&&lg.complete){const s=ih*0.9/lg.naturalHeight;x.drawImage(lg,W/2-lg.naturalWidth*s/2,iy+ih*0.05,lg.naturalWidth*s,lg.naturalHeight*s);}}
+  x.strokeStyle='#ffc21a';x.lineWidth=6;x.strokeRect(42,iy,W-84,ih);
+  let y=iy+ih+90;x.fillStyle=LAST&&LAST.win?'#ffc21a':'#ff8a8a';x.font='54px '+F;x.textAlign='center';x.fillText(LAST&&LAST.win?(LAST.stamps===4?'CONSEGNA PERFETTA!':'CONSEGNA COMPLETATA!'):'IMBARCO CHIUSO!',W/2,y);
+  x.font='600 42px '+S;x.fillStyle='#f1f5fb';y+=80;
+  if(LAST&&LAST.win){x.fillText('Caffè consegnato a Erika con '+mmss(LAST.left)+' di anticipo',W/2,y);y+=62;x.fillText('Timbri '+LAST.stamps+'/4  ·  Fiori '+LAST.flowers+'/'+LAST.totalF,W/2,y);}
+  else{x.fillText('Il caffè è rimasto a terra…',W/2,y);y+=62;x.fillText('Riuscirai a consegnarlo a Erika?',W/2,y);}
+  y+=100;x.fillStyle='#c2289f';x.fillRect(W/2-330,y-62,660,96);x.fillStyle='#fff';x.font='44px '+F;x.fillText('RIESCI A BATTERMI?',W/2,y);
+  y+=110;x.fillStyle='#ffc21a';x.font='48px '+F;x.fillText('gioco.keik.it',W/2,y);
+  x.fillStyle='#a3b3cf';x.font='500 30px '+S;x.fillText('KEIK · Viaggia col gusto · Via Canalino 51, Modena · @keikmodena',W/2,H-50);
+  c.toBlob(b=>cb(b),'image/png');}
+function saveBlob(b){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='brady-quest-keik.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
+$('btn-share').addEventListener('click',()=>{const t=shareText();
+  const fallback=()=>{if(navigator.share){navigator.share({title:"Brady's Quest",text:t,url:SHARE_URL}).catch(()=>{});}else{window.open('https://wa.me/?text='+encodeURIComponent(t+' 👉 '+SHARE_URL),'_blank','noopener');}};
+  try{makeCard(b=>{let f=null;try{f=b&&new File([b],'brady-quest-keik.png',{type:'image/png'});}catch(e){}
+    if(f&&navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],text:t+' 👉 '+SHARE_URL}).catch(()=>{});else fallback();});}catch(e){fallback();}});
+$('btn-card').addEventListener('click',()=>{try{makeCard(b=>{if(b)saveBlob(b);});}catch(e){}});
 $('btn-retry').addEventListener('click',()=>{if(state!=='win')return;mapComplete(0);M.auto=0;M.cur=0;$('btn-retry').hidden=true;startLevel();});
 const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const STANDALONE=!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches));
@@ -926,7 +960,7 @@ function arc(i,j,k){const [x0,y0]=nodePos(i),[x1,y1]=nodePos(j),mx=(x0+x1)/2,my=
 function flyTo(j){if(M.fly||j===M.cur)return;const [a,b]=nodePos(M.cur),[c,d]=nodePos(j);M.fly={from:M.cur,to:j,t:0,d:Math.max(1.6,Math.hypot(c-a,d-b)/170)};beep(520,.08,'triangle');}
 function planePos(){if(M.fly){const k=Math.min(1,M.fly.t/M.fly.d),e=k*k*(3-2*k);return sArc(M.fly.from,M.fly.to,e);}return stopP(M.cur);}
 function goMap(){state='map';$('screen').hidden=true;K.l=K.r=K.d=K.j=false;M.pl=M.pr=true;}
-function startLevel(){reset();K.l=K.r=K.d=K.j=false;state='play';$('screen').hidden=true;fact('Consiglio','Cammina verso destra e raccogli i fiori di ibisco.');}
+function startLevel(){reset();['btn-share','btn-card','omaggio'].forEach(id=>{const e=$(id);if(e)e.hidden=true;});K.l=K.r=K.d=K.j=false;state='play';$('screen').hidden=true;fact('Consiglio','Cammina verso destra e raccogli i fiori di ibisco.');}
 function enterStage(i){if(i!==M.cur)return;if(i===0){beep(880,.1,'triangle');startLevel();}else{M.msg=STG[i].n+': PROSSIMAMENTE!';M.msgT=2;beep(300,.08,'square');}}
 function mapComplete(i){if(!M.done.includes(i))M.done.push(i);if(M.unl<i+2){M.unl=Math.min(STG.length,i+2);M.auto=1.2;}saveProg();}
 function mapUpdate(dt){M.t+=dt;if(M.msgT>0)M.msgT-=dt;
