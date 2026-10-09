@@ -44,6 +44,12 @@
       pop.addEventListener('click',function(e){ if(e.target===pop) hide(); });
       document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!pop.hidden) hide(); });
       document.addEventListener('click',function(e){ var a=e.target.closest&&e.target.closest('[data-bq]'); if(a) mark(); });
+      // prima di uscire: tasto/gesto Indietro sul telefono, mouse verso l'alto sul computer
+      if(!seen()){
+        try{ history.pushState({bq:1},'',location.href); }catch(e){}
+        window.addEventListener('popstate',function(e){ if(seen()||(e.state&&e.state.bq)||location.hash) return; show(); });
+        document.addEventListener('mouseout',function(e){ if(!e.relatedTarget&&e.clientY<=0&&!seen()) show(); });
+      }
       window.bqShowNow=function(){ try{ sessionStorage.removeItem(KEY); }catch(e){} show(); };
     })();
   });
