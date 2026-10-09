@@ -191,7 +191,7 @@ function build(){
   it('f',114.5,G-38); it('f',117.5,G-62); it('t',120.5,G-88);
   solids.push({x:178.6*T,y:G-90,w:T,h:T,t:'q',item:'b',used:false,bump:0});
   [[180.5,183,G-56],[189,191.5,G-56],[184.6,186.9,G-100]].forEach(q=>solids.push({x:q[0]*T,y:q[2],w:(q[1]-q[0])*T,h:8,t:'pf'}));rail(125,134); en('g',124,129); en('g',130,135); it('a',129.5,G-14); fl([127,129,131],HY);
-  box(138,1,3); it('p',139,G-40);
+  box(138,1,3);
   // GATE
   belt(143,150,70); fl([144,146,148]);
   gnd(152,COLS); en('s',154,158); rail(158,166); en('g',159,166); fl([160,162,164],HY);
@@ -315,8 +315,6 @@ function drawCloseup(){const ct=cut.ct,i=Math.min(cut.pi,CU.length-1),c=CU[i],lt
   if(i===2&&CFOK){const D=c.d,a=Math.min(1,lt/.35,(D-lt)/.35);const z=1+.1*(lt/D),sc=Math.max(VW/CFI.width,VH/CFI.height)*z,w=CFI.width*sc,h=CFI.height*sc;
     let X=VW/2-w*.49,Y=VH/2-h*.6;X=Math.min(0,Math.max(VW-w,X));Y=Math.min(0,Math.max(VH-h,Y));
     ctx.globalAlpha=Math.max(0,a);ctx.drawImage(CFI,Math.round(X),Math.round(Y),Math.round(w),Math.round(h));
-    if(lt>.6&&lt<D-.4){const tw='CONSEGNA KEIK!';ctx.font='8px Silkscreen,monospace';const mw=ctx.measureText(tw).width,x=Math.round(VW/2-mw/2),y=VH-14;
-      ctx.fillStyle='#101826';ctx.fillRect(x-6,y-10,mw+12,14);ctx.fillStyle='#7b3fc0';ctx.fillRect(x-5,y-9,mw+10,12);ctx.fillStyle='#ffffff';ctx.fillText(tw,x,y);}
     ctx.globalAlpha=1;}
   if(c.t){const by=VH-48,bh=42;ctx.fillStyle='#ffffff';ctx.fillRect(6,by-2,VW-12,bh+4);ctx.fillStyle='#101826';ctx.fillRect(8,by,VW-16,bh);
     ctx.font='8px Silkscreen,monospace';const nw=Math.round(ctx.measureText(c.n).width)+12;const nx=c.w==='b'?14:VW-14-nw;
