@@ -314,16 +314,16 @@ function boom(x,y){shake=Math.max(shake,.18);beep(90,.2,'sawtooth');beep(180,.12
   if(B&&B.active&&!B.dead&&B.inv<=0&&Math.abs(B.x+B.w/2-x)<B.w/2+30&&Math.abs(B.y+B.h/2-y)<B.h/2+30)bossHit(1,.6);}
 function oneUp(){lives++;[523,659,784,1047,784,1047].forEach((n,i)=>setTimeout(()=>beep(n,.1,'square',.03),i*80));pops.push({x:p.x+p.w/2,y:p.y-18,text:'1 UP',life:1.6,up:true});burst(p.x+p.w/2,p.y,'#7dff4a',10);hud(true);}let cut=null;
 function startCut(){state='cut';cut={t:0};p.big=0;p.power=null;p.turbo=0;p.star=0;p.hang=null;p.swim=false;p.inv=0;p.camo=false;p.camoK=0;p.idle=0;GH.length=0;K.l=K.r=K.d=K.j=false;eshots=[];fact('Consegna','Brady è arrivato al gate K51 con il caffè.');}
-const CU=[{w:'g',f:'gl2',n:'VIAGGIATRICE',t:'Brady! Il mio caffè! Pensavo di non farcela!'},
+const CU=[{w:'g',f:'gl2',n:'ERIKA',t:'Brady! Il mio caffè! Pensavo di non farcela!'},
   {w:'b',f:'gl0',n:'BRADY',t:'Consegna KEIK: lento, ma sempre puntuale.'},
   {w:'x',f:'gl3',d:3.4},
-  {w:'g',f:'gl4',n:'VIAGGIATRICE',t:'Grazie Brady! Continuo il mio viaggio.'},
+  {w:'g',f:'gl4',n:'ERIKA',t:'Grazie Brady! Continuo il mio viaggio.'},
   {w:'e',f:'gl5',d:1.8}];
 CU.forEach(c=>{if(!c.d)c.d=1.4+c.t.length*.045;});
 function cuPanel(ct){let a=0;for(let i=0;i<CU.length;i++){if(ct<a+CU[i].d)return [i,ct-a];a+=CU[i].d;}return [CU.length,0];}
 function finishCut(){cut=null;beep(1200,.4,'triangle');
   end(true,stamps===4?'Consegna perfetta!':'Consegna completata!',
-    'La cliente è partita con il suo caffè KEIK. '+(stamps===4?'E Brady ha tutti e 4 i timbri sul passaporto. ':'Timbri raccolti: '+stamps+' di 4. ')+'Lo sapevi? '+FACTS[Math.floor(Math.random()*FACTS.length)]);}
+    'Erika è partita con il suo caffè KEIK. '+(stamps===4?'E Brady ha tutti e 4 i timbri sul passaporto. ':'Timbri raccolti: '+stamps+' di 4. ')+'Lo sapevi? '+FACTS[Math.floor(Math.random()*FACTS.length)]);}
 function cutUpdate(dt){const t=(cut.t+=dt),tx=GATE-4;
   if(p.x<tx){p.x=Math.min(tx,p.x+55*dt);p.vx=55;p.anim+=dt*8;p.face=1;}else{p.vx=0;}
   p.y=G-p.h;p.on=true;p.vy=0;
@@ -454,7 +454,7 @@ function update(dt){
   if(B.tf>0){B.tf-=dt;cam+=(camTarget()-cam)*Math.min(1,dt*6);const k=Math.floor(B.tf*8);if(k!==B.tfk){B.tfk=k;beep(140+(16-k)*40,.07,'square');shake=.15;burst(B.x+Math.random()*B.w,B.y+Math.random()*B.h,Math.random()<.5?'#ffc21a':'#ffffff',6);}
     if(B.tf<=0){shake=.5;beep(70,.4,'sawtooth');p.mflash=0;}hud();return;}
   left-=dt;
-  if(left<=0){left=0;hud();return end(false,'Imbarco chiuso','La cliente è partita senza il suo caffè. Dai tubi e dall\'acqua si passa molto più in fretta.');}
+  if(left<=0){left=0;hud();return end(false,'Imbarco chiuso','Erika è partita senza il suo caffè. Dai tubi e dall\'acqua si passa molto più in fretta.');}
   const dir=(K.r?1:0)-(K.l?1:0); if(dir)p.face=dir;
   jb=Math.max(0,jb-dt);p.dropT=Math.max(0,p.dropT-dt);p.inv=Math.max(0,p.inv-dt);p.turbo=Math.max(0,p.turbo-dt);p.noB=Math.max(0,p.noB-dt);
   p.star=Math.max(0,p.star-dt);p.mflash=Math.max(0,(p.mflash||0)-dt);p.bigT+=dt;p.shootT=Math.max(0,p.shootT-dt);for(const e of fx)e.t+=dt;fx=fx.filter(e=>e.t<e.d);if(p.big>0){p.big-=dt;if(p.big<=0){p.big=0;beep(330,.2,'triangle');fact('Pancake','Brady torna normale.');}}shake=Math.max(0,shake-dt);for(const s of solids)if(s.bump>0)s.bump-=dt;
