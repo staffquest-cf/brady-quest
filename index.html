@@ -112,6 +112,18 @@ html.bq-fs,html.bq-fs body{overflow:hidden;height:100%;overscroll-behavior:none;
 @keyframes tilt{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
 @media (prefers-reduced-motion:reduce){#rotate svg{animation:none}}
 @media (orientation:portrait){#area.fs #rotate{display:flex}}
+
+/* pulsanti touch: insegne d'aeroporto 16 bit, giallo e nero */
+#area .pad .key,#area.fs .pad .key{opacity:1;background:#ffc21a;color:#101826;border:3px solid #101826;border-radius:3px;font-family:'Silkscreen',var(--mono);font-weight:400;font-size:12px;letter-spacing:.04em;text-transform:uppercase;image-rendering:pixelated;
+  box-shadow:inset -3px -3px 0 #c98f00,inset 3px 3px 0 #ffe27a,0 3px 0 #101826;transition:none}
+#area .pad #k-down,#area.fs .pad #k-down{background:#101826;color:#ffc21a;border-color:#ffc21a;box-shadow:inset -3px -3px 0 #000,inset 3px 3px 0 #2a3550,0 3px 0 #000}
+#area .pad .key.on,#area.fs .pad .key.on{transform:translateY(2px);background:#e0a400;box-shadow:inset 3px 3px 0 #a87700,0 1px 0 #101826}
+#area .pad #k-down.on,#area.fs .pad #k-down.on{background:#000;box-shadow:inset 3px 3px 0 #000,0 1px 0 #000}
+#area.fs .pad{bottom:calc(3px + env(safe-area-inset-bottom,0px))}
+#area.fs .pad .key{height:clamp(36px,12vh,48px);width:clamp(46px,15vh,60px)}
+#area.fs .pad .key.jump{width:clamp(66px,21vh,86px)}
+#area.fs .pad #k-down{width:clamp(62px,19vh,76px);font-size:11px;letter-spacing:0}
+#area.fs .pad div{gap:8px}
 </style>
 
 <div class="wrap">
