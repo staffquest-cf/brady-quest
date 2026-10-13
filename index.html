@@ -213,6 +213,8 @@ const ZJ=[[1,'CHECK-IN'],[47,'SICUREZZA'],[99,'ONSEN & DUTY FREE'],[153,'GATE K5
 function jimg(n,x,y,flip,k){const r=JR[n];if(!r||!JOK)return;k=k||1;const w=Math.round(r[2]*k),h=Math.round(r[3]*k);x=Math.round(x);y=Math.round(y);
   if(flip){ctx.save();ctx.translate(x+w,y);ctx.scale(-1,1);ctx.drawImage(JATL,r[0],r[1],r[2],r[3],0,0,w,h);ctx.restore();}else ctx.drawImage(JATL,r[0],r[1],r[2],r[3],x,y,w,h);}
 function jbot(n,cx,bot,flip,k){const r=JR[n];if(!r)return;k=k||1;jimg(n,cx-r[2]*k/2,bot-r[3]*k,flip,k);}
+function jsq(n,cx,bot,flip,k,sx,sy){const r=JR[n];if(!r||!JOK)return;const w=Math.round(r[2]*k*sx),h=Math.round(r[3]*k*sy),x=Math.round(cx-w/2),y=Math.round(bot-h);
+  if(flip){ctx.save();ctx.translate(x+w,y);ctx.scale(-1,1);ctx.drawImage(JATL,r[0],r[1],r[2],r[3],0,0,w,h);ctx.restore();}else ctx.drawImage(JATL,r[0],r[1],r[2],r[3],x,y,w,h);}
 function buildJP(){
   solids=[];rails=[];waters=[];belts=[];items=[];enemies=[];checks=[];
   const gnd=(a,b)=>solids.push({x:a*T,y:G,w:(b-a)*T,h:VH-G+60,t:'g'});
@@ -280,14 +282,14 @@ function drawJPF(s){const x=Math.round(s.x),y=Math.round(s.y),w=Math.round(s.w),
   for(let px=x+12;px<x+w-12;px+=33)jimg('pl1',px,y-19);
   jimg('pl0',x-4,y-19);jimg('pl2',x+w-31,y-19);ctx.restore();}
 function bossUpdateJP(dt){
-  B.t+=dt;B.inv=Math.max(0,B.inv-dt);const bc=B.x+B.w/2,pc=p.x+p.w/2;
+  B.t+=dt;B.inv=Math.max(0,B.inv-dt);B.rec=Math.max(0,(B.rec||0)-dt);const wasOn=B.on;const bc=B.x+B.w/2,pc=p.x+p.w/2;
   if(B.phase===1){
     if(B.state==='walk'){B.face=pc<bc?-1:1;B.vx=B.face*(55+(3-B.hp)*12);if(B.t>1.8){B.vx=0;B.t=0;B.state=Math.random()<.55?'crouch':'throw';}}
-    else if(B.state==='crouch'){B.vx=0;if(B.t>.45){B.vy=-400;B.vx=Math.max(-230,Math.min(230,(pc-bc)/.9));B.on=false;B.state='pounce';B.t=0;beep(700,.08,'triangle');}}
+    else if(B.state==='crouch'){B.vx=0;if(B.t>.45){B.vy=-360;B.vx=Math.max(-230,Math.min(230,(pc-bc)/.9));B.on=false;B.state='pounce';B.t=0;beep(700,.08,'triangle');}}
     else if(B.state==='pounce'){if(B.on&&B.t>.1){B.vx=0;B.state='land';B.t=0;shake=.15;}}
     else if(B.state==='land'){B.vx=0;if(B.t>.5){B.state='walk';B.t=0;}}
-    else if(B.state==='throw'){B.vx=0;B.face=pc<bc?-1:1;if(B.sp<2&&B.t>.35+B.sp*.55){B.sp++;eshots.push({k:'y',x:bc+B.face*20-6,y:B.y+14,vx:B.face*(120+Math.random()*50),vy:-200,w:12,h:12,life:3.2});beep(500,.05,'triangle');}
-      if(B.t>1.5){B.sp=0;B.state='walk';B.t=0;}}
+    else if(B.state==='throw'){B.vx=0;B.face=pc<bc?-1:1;if(B.sp<3&&B.t>.3+B.sp*.32){B.sp++;B.rec=.12;eshots.push({k:'c',x:bc+B.face*16-5,y:G-22+(B.sp%2)*-12,vx:B.face*165,vy:0,w:10,h:10,life:2.6,ph:Math.random()*6});beep(880,.04,'triangle',.025);}
+      if(B.t>1.4){B.sp=0;B.state='walk';B.t=0;}}
     else if(B.state==='hurt'){B.vx=0;if(B.t>.7){B.state='walk';B.t=0;}}
   }else{
     if(B.state==='walk'){B.face=pc<bc?-1:1;B.vx=B.face*(42+(2-B.hp)*14);if(B.t>1.6){B.vx=0;B.t=0;const r=Math.random();B.state=r<.45?'squat':r<.75?'breath':'fish';}}
@@ -313,20 +315,32 @@ function bossUpdateJP(dt){
     else if(p.big>0){p.x+=pc<bc?-30:30;beep(220,.08,'square');}
     else if(p.inv<=0){if(p.vy>0&&!p.on&&p.y+p.h-B.y<22){p.vy=-300;beep(700,.08,'triangle');}else{lose(false);if(state!=='play')return false;p.x+=pc<bc?-26:26;}}}
   for(const e of eshots){
+    if(e.k==='c'){e.ph+=dt*8;e.vy=Math.sin(e.ph)*25;}
     if(e.k==='y'){e.vy+=600*dt;if(e.y+e.h>=G&&e.vy>0){e.y=G-e.h;e.vy=-Math.max(160,Math.abs(e.vy)*.72);}}
     e.x+=e.vx*dt;e.y+=e.vy*dt;e.life-=dt;
     if(e.x+e.w<ARENA||e.x>GATE)e.life=0;
     if(e.life>0&&hit(p,e)){e.life=0;if(p.big>0||p.inv>0)continue;lose(false);if(state!=='play')return false;}}
   eshots=eshots.filter(e=>e.life>0);
+  if(B.on&&!wasOn)B.land=.2;B.land=Math.max(0,(B.land||0)-dt);
   return true;}
 function drawBossJP(){
   const cx=B.x+B.w/2,bot=B.y+B.h;
   if(B.dead){jbot('mg9',cx,G+1,B.face<0);return;}
-  if(B.tf>0){const k=1-B.tf/2.2,f=Math.floor(time*12)%2,n=k<.25?'ki0':k<.55?(f?'mg0':'ki0'):k<.8?(f?'mg0':'mg3'):'mg3';jbot(n,cx,G+1,B.face<0,n[0]==='m'?1+Math.min(1,k)*.25:1);return;}
+  if(B.tf>0){const k=1-B.tf/2.2,e=k*k*(3-2*k),f=Math.floor(time*(8+k*16))%2,mg=k>.45&&(k>.85||f);const sc=mg?.7+e*.55:.7+e*.35;
+    if(k>.2){ctx.globalAlpha=.25+.25*Math.sin(time*20);ctx.fillStyle='#ff8fc7';ctx.beginPath();ctx.arc(Math.round(cx),Math.round(G-24-e*30),18+e*34,0,7);ctx.fill();ctx.globalAlpha=1;}
+    jsq(mg?'mg3':'ki0',cx,G+1,B.face<0,sc,1,1);
+    if(Math.floor(time*10)%3===0&&k>.3){ctx.globalAlpha=.5;ctx.fillStyle='#ffffff';ctx.fillRect(0,0,VW+LW,VH);ctx.globalAlpha=1;}return;}
   if(B.inv>0&&Math.floor(time*16)%2)return;
   const st=B.state;
-  if(B.phase===1){const n=st==='walk'?(Math.abs(B.vx)>1&&Math.floor(time*6)%2?'ki3':'ki0'):st==='crouch'||st==='land'?'ki4':st==='pounce'?'ki5':st==='throw'?'ki6':st==='hurt'?'ki7':'ki0';
-    jbot(n,cx,bot+1,B.face<0);return;}
+  if(B.phase===1){const mv=Math.abs(B.vx)>1;let n='ki0',sx=1,sy=1,dy=0;
+    if(st==='walk'){n=mv&&Math.floor(time*8)%2?'ki3':'ki0';const b=Math.sin(time*16);dy=mv?-Math.abs(Math.round(b*2)):0;sy=1+(mv?.04*b:.03*Math.sin(time*4));sx=2-sy;}
+    else if(st==='crouch'){n='ki4';const q=Math.min(1,B.t/.45);sy=1-.18*q;sx=1+.14*q;}
+    else if(st==='pounce'){n='ki5';sy=B.vy<0?1.12:.95;sx=2-sy;}
+    else if(st==='land'){n='ki4';}
+    else if(st==='throw'){n='ki3';if(B.rec>0){sx=1.12;sy=.9;}}
+    else if(st==='hurt'){n='ki7';sx=1+.06*Math.sin(time*30);}
+    if(B.land>0){const q=B.land/.2;sy*=1-.22*q;sx*=1+.2*q;}
+    jsq(n,cx,bot+1+dy,B.face<0,.7,sx,sy);return;}
   let n='mg3',dy=0;
   if(B.dead){}
   if(st==='walk')dy=Math.abs(B.vx)>1?-Math.abs(Math.round(Math.sin(time*7)*2)):0;
@@ -338,6 +352,7 @@ function drawEshotJP(e){
   if(e.k==='y')jbot(Math.floor(time*8)%2?'yb0':'yb1',e.x+e.w/2,e.y+e.h+3,e.vx<0);
   else if(e.k==='v')jbot(Math.floor(time*10)%2?'sw0':'sw1',e.x+e.w/2,G+1,e.vx<0,.75);
   else if(e.k==='b'){const r=JR.bm2;if(r)jimg('bm2',e.x+e.w/2-r[2]*.4,e.y+e.h/2-r[3]*.4,e.vx<0,.8);}
+  else if(e.k==='c'){const x=Math.round(e.x+e.w/2),y=Math.round(e.y+e.h/2),r=5+Math.round(Math.sin(e.ph*1.3));ctx.fillStyle='#d9d2e6';ctx.beginPath();ctx.arc(x+1,y+1,r,0,7);ctx.fill();ctx.fillStyle='#ffffff';ctx.beginPath();ctx.arc(x-2,y,r-1,0,7);ctx.arc(x+2,y-1,r-1,0,7);ctx.arc(x,y+2,r-1.5,0,7);ctx.fill();ctx.fillStyle='rgba(255,143,199,.7)';ctx.fillRect(x-1,y-1,2,2);}
   else if(e.k==='f')jbot('fb'+(Math.floor(time*10)%3),e.x+e.w/2,e.y+e.h+1,e.vx<0);}
 
 /* ---------- livello ---------- */
@@ -406,7 +421,7 @@ function reset(){
   p={ninja:0,dj:false,spin:0,x:spawn.x,y:spawn.y,w:25,h:31,vy:0,on:true,hang:null,face:1,idle:0,camo:false,camoK:0,inv:0,turbo:0,carry:0,swim:false,dropT:0,noB:0,anim:0,vx:0,power:null,star:0,glide:false,ammo:0,big:0,bigT:0,shootT:0,grow:0,gst:-1,pow:0,pst:-1};
   shots=[];parts=[];pops=[];fx=[];nextLife=30;shake=0;
   B={x:190*T,y:G-54,w:56,h:54,vx:0,vy:0,hp:3,max:3,phase:1,name:'MEGA ROBOT PULITORE',state:'roll',t:0,inv:0,dead:false,active:false,face:-1,on:true,intro:0,tf:0,sp:0,deadT:0,ta:'BOSS',tb:'MEGA ROBOT'};
-  if(LVL===1)Object.assign(B,{y:G-44,w:40,h:44,name:'NEKO KAWAII',state:'walk',tb:'NEKO KAWAII'});eshots=[];
+  if(LVL===1)Object.assign(B,{y:G-32,w:30,h:32,name:'NEKO KAWAII',state:'walk',tb:'NEKO KAWAII'});eshots=[];
   left=200;lives=3;flowers=0;stamps=0;cam=0;seen={};jb=0;hud(true);
 }
 function fact(tag,text){$('fact-tag').textContent=tag;$('fact-text').textContent=text;}
@@ -601,7 +616,7 @@ function update(dt){
     if(p.grow<=0){p.grow=0;shake=.3;beep(880,.25,'triangle');}
     hud();return;}
   if(B.intro>0){B.intro-=dt;cam+=(camTarget()-cam)*Math.min(1,dt*6);if(Math.floor(B.intro*6)!==Math.floor((B.intro+dt)*6))beep(110,.08,'square');hud();return;}
-  if(!B.active&&!B.dead&&p.x>ARENA+T){B.active=true;B.intro=1.6;B.tt=2.4;B.hint=6.5;B.hintT=['SCHIACCIA IL BOSS IN TESTA','PER SCONFIGGERLO!'];left+=30;shake=.3;pops.push({x:p.x+9,y:p.y-14,text:'+30s',life:1.4});fact('Boss',LVL===1?'Il Neko Kawaii blocca il gate: è carino, ma graffia! Saltagli in testa ed evita i gomitoli. Con i pancake puoi saltargli in testa quando vuoi, ma durano solo 15 secondi!':'Il Mega Robot Pulitore blocca il gate. Sali sulle piattaforme e saltagli sul coperchio, oppure colpiscilo con i burrito. Con i pancake puoi saltargli in testa quando vuoi, ma durano solo 15 secondi!');hud(true);return;}
+  if(!B.active&&!B.dead&&p.x>ARENA+T){B.active=true;B.intro=1.6;B.tt=2.4;B.hint=6.5;B.hintT=['SCHIACCIA IL BOSS IN TESTA','PER SCONFIGGERLO!'];left+=30;shake=.3;pops.push({x:p.x+9,y:p.y-14,text:'+30s',life:1.4});fact('Boss',LVL===1?'Il Neko Kawaii blocca il gate: è piccolo, ma spara pallottole di cotone! Saltagli in testa. Con i pancake puoi saltargli in testa quando vuoi, ma durano solo 15 secondi!':'Il Mega Robot Pulitore blocca il gate. Sali sulle piattaforme e saltagli sul coperchio, oppure colpiscilo con i burrito. Con i pancake puoi saltargli in testa quando vuoi, ma durano solo 15 secondi!');hud(true);return;}
   B.tt=Math.max(0,(B.tt||0)-dt);B.hint=Math.max(0,(B.hint||0)-dt);
   if(B.tf>0){B.tf-=dt;cam+=(camTarget()-cam)*Math.min(1,dt*6);const k=Math.floor(B.tf*8);if(k!==B.tfk){B.tfk=k;beep(140+(16-k)*40,.07,'square');shake=.15;burst(B.x+Math.random()*B.w,B.y+Math.random()*B.h,Math.random()<.5?'#ffc21a':'#ffffff',6);}
     if(B.tf<=0){shake=.5;beep(70,.4,'sawtooth');p.mflash=0;}hud();return;}
